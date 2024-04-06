@@ -13,6 +13,7 @@ function App() {
   const [dob, setDob] = useState('');
   const [editingIndex, setEditingIndex] = useState(null);
   const [error, setError] = useState('');
+  const [formErrors, setFormErrors] = useState({})
 
   useEffect(() => {
     fetchUsers();
@@ -28,9 +29,32 @@ function App() {
     }
   };
 
+  const validateForm = () => {
+    const errors = {};
+
+    if (!name.trim()) {
+      errors.name = 'Name is required';
+    }
+
+    if (!email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      errors.email = 'Email is invalid';
+    }
+
+    if (!dob) {
+      errors.dob = 'Date of Birth is required';
+    }
+
+    setFormErrors(errors);
+
+    return Object.keys(errors).length === 0;
+  };
+  
+
+
   const handleAddUser = async () => {
-    if (!name || !email || !dob) {
-      alert('Please fill in all fields');
+    if (!validateForm()) {
       return;
     }
 
@@ -77,17 +101,20 @@ function App() {
   return (
     <div className="App">
       <h1>User Registration</h1>
-      <div>
+      <div className={formErrors.name ? 'field-error' : ''}>
         <label>Name:</label>
         <input type="text" required value={name} onChange={(e) => setName(e.target.value)} />
+        {formErrors.name && <p className='error'>{formErrors.name}</p>}
       </div>
-      <div>
+      <div className={formErrors.email ? 'field-error' : ''}>
         <label>Email:</label>
         <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+        {formErrors.email && <p className='error'>{formErrors.email}</p>}
       </div>
-      <div>
+      <div className={formErrors.dob ? 'field-error' : ''}>
         <label>Date of Birth:</label>
         <input type="date" required value={dob} onChange={(e) => setDob(e.target.value)} />
+        {formErrors.dob && <p className='error'>{formErrors.dob}</p>}
       </div>
       <button className='add-user-btn' onClick={handleAddUser}>{editingIndex !== null ? 'Update User' : 'Add User'}</button>
       {error && <p className='error'>{error}</p>}
